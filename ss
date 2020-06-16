@@ -1,4 +1,4 @@
-local library = loadstring(game:HttpGetAsync(""))()
+local library = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/Dovahkiin1234/ratcrossing/master/sss?token=ALFI5ALOPLNVE4EWWH7T3RC65C5OA"))()
 local w = library:CreateWindow('lol')
 w:Button("kill all but u", function()
 local damage = 100
