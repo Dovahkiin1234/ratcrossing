@@ -1,0 +1,87 @@
+local Material = loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/MaterialLua/master/Module.lua"))()
+
+local UI = Material.Load({
+     Title = "By NotThatToxicKid",
+     Style = 1,
+     SizeX = 500,
+     SizeY = 300,
+     Theme = "Dark"
+})
+
+local Main = UI.New({
+    Title = "Main"
+})
+
+Main.Button({
+    Text = "Destroy UI",
+    Callback = function()
+        game:GetService("CoreGui")["By NotThatToxicKid"]:Destroy()
+    end
+})
+
+Main.Dropdown({
+    Text = "Choose Place",
+    Callback = function(place)
+        if place == "1v1 Arena 1" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(373.840485, 111.275375, -166.966522)
+        end
+        if place == "1v1 Arena 2" then
+           game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(378.652313, 111.275375, -105.940033 )
+        end
+        if place == "1v1 Arena 3" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(378.461548, 111.275375, -44.9765472)
+        end
+        if place == "1v1 Arena 4" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(304.413696, 111.275375, -44.9239311)
+        end
+        if place == "1v1 Arena 5" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(305.090942, 111.275375, -105.152504)
+        end
+        if place == "1v1 Arena 6" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(304.463043, 111.275375, -166.755859)
+        end 
+        if place == "Le Store" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(321.475006, 132.274536, -303.606262)
+        end
+        if place == "Bank" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(362.618713, 132.274536, -342.840302)
+        end
+        if place == "Gym" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(341.799927, 102.695518, 292.643799)
+        end
+        if place == "2v2 Arena" then
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(369.375031, 122.170601, 105.280289)
+        end
+    end,
+    Options = {
+        "2v2 Arena",
+        "1v1 Arena 1", 
+        "1v1 Arena 2", 
+        "1v1 Arena 3",
+        "1v1 Arena 4",
+        "1v1 Arena 5",
+        "1v1 Arena 6",
+        "Le Store",
+        "Bank",
+        "Gym"
+    }
+})
+
+Main.Toggle({
+    Text = "Auto Farm ( Synapse Only )",
+    Callback = function(farm)
+        _G.Enabled = (farm and true or false)
+        if farm then 
+            game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(341.998993, 102.695808, 338.501556)
+            wait(1)
+            syn_keypress(69)
+            wait(1)
+            while _G.Enabled do wait()
+                syn_mouse1press()
+                wait(0.0001)
+                syn_mouse1release()
+            end
+        end
+    end,
+    Enabled = false
+})
